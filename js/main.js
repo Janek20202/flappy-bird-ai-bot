@@ -210,6 +210,11 @@ function gameloop() {
    var pipeleft = nextpipeupper.offset().left - 2; // for some reason it starts at the inner pipes offset, not the outer pipes.
    var piperight = pipeleft + pipewidth;
    var pipebottom = pipetop + pipeheight;
+
+    var distanceToPipe = pipetop + pipeheight / 2 - boxbottom - boxheight / 2;
+    var distanceToCenter = piperight - boxleft;
+
+    console.log("" + distanceToPipe + ", " + distanceToCenter);
    
    if(debugmode)
    {
