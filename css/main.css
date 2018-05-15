@@ -304,8 +304,7 @@ Screen - Game
 
 #player
 {
-   left: 60px;
-   top: 200px;
+   display: none;
 }
 
 .bird
@@ -317,6 +316,8 @@ Screen - Game
    
    -webkit-animation: animBird 300ms steps(4) infinite;
    animation: animBird 300ms steps(4) infinite;
+   left: 60px;
+   top: 200px;
 }
 
 .pipe
