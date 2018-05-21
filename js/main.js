@@ -1,4 +1,4 @@
-const numOfPlayers = 10;
+const numOfPlayers = 5;
 
 class Player {
     constructor() {
@@ -12,9 +12,13 @@ class Player {
 
 let players = [];
 
+const images = ['bird0.png', 'bird1.png', 'bird2.png', 'bird3.png', 'bird4.png'];
+
 const gravity = 0.25;
 const jump = -4.6;
 const flyArea = $("#flyarea").height();
+
+let generation = 1;
 
 
 const pipeheight = 90;
@@ -33,7 +37,7 @@ function startGame() {
     const updaterate = 1000.0 / 60.0; //60 times a second
     loopGameloop = setInterval(gameloop, updaterate);
     loopPipeloop = setInterval(updatePipes, 1400);
-
+    $('#generation').text("Generation: " + generation);
     generatePlayers();
 }
 
@@ -43,6 +47,7 @@ function generatePlayers() {
     for (let i = 0; i < numOfPlayers; i++) {
         const player = new Player();
         player.view = view.clone();
+        player.view.css({"background-image": "url('assets/birds/" + images[i] + "')"});
         player.view.insertAfter($('#ceiling'));
         player.view.removeAttr('id');
         players.push(player);
@@ -56,11 +61,15 @@ function gameloop() {
         restartGame();
         return;
     }
+    $('#alive').text("Alive: " + alivePlayers.length + " / " + numOfPlayers);
     alivePlayers.forEach(function (player) {
+        player.score++;
+        $('#score').text("Score: " + player.score);
         updatePlayer(player);
         checkIfDead(player);
     });
 }
+
 
 function restartGame() {
     $('.pipe').remove();
@@ -70,6 +79,7 @@ function restartGame() {
     clearInterval(loopPipeloop);
     loopGameloop = null;
     loopPipeloop = null;
+    generation++;
 
     startGame();
 }
@@ -144,7 +154,7 @@ function checkIfDead(player) {
         pipes.splice(0, 1);
 
         //and score a point
-        playerScore(player);
+        //playerScore(player);
     }
 }
 
