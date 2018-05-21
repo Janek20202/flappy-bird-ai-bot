@@ -1,27 +1,25 @@
-const numOfPlayers = 5;
-
 class Player {
     constructor() {
         this.score = 0;
+        this.distance = 0;
         this.velocity = 0;
         this.position = 180;
         this.rotation = 0;
         this.isDead = false;
+        this.neuralNet = null;
     }
 }
 
+let generation = 1;
+const numOfPlayers = 50;
 let players = [];
-
-const images = ['bird0.png', 'bird1.png', 'bird2.png', 'bird3.png', 'bird4.png'];
 
 const gravity = 0.25;
 const jump = -4.6;
 const flyArea = $("#flyarea").height();
 
-let generation = 1;
 
-
-const pipeheight = 90;
+const pipeheight = 110;
 const pipewidth = 52;
 let pipes = [];
 
@@ -30,6 +28,7 @@ let loopGameloop;
 let loopPipeloop;
 
 $(document).ready(function () {
+    generatePlayers();
     startGame();
 });
 
@@ -38,21 +37,25 @@ function startGame() {
     loopGameloop = setInterval(gameloop, updaterate);
     loopPipeloop = setInterval(updatePipes, 1400);
     $('#generation').text("Generation: " + generation);
-    generatePlayers();
+    updatePipes();
 }
 
 function generatePlayers() {
-    players = [];
-    const view = $('#player');
     for (let i = 0; i < numOfPlayers; i++) {
         const player = new Player();
-        player.view = view.clone();
-        player.view.css({"background-image": "url('assets/birds/" + images[i] + "')"});
-        player.view.insertAfter($('#ceiling'));
-        player.view.removeAttr('id');
+        player.neuralNet = new NeuralNet([]);
+        player.neuralNet.random();
+        addPlayerView(player);
         players.push(player);
         playerJump(player);
     }
+}
+
+function addPlayerView(player) {
+    const view = $('#player');
+    player.view = view.clone();
+    player.view.insertAfter($('#ceiling'));
+    player.view.removeAttr('id');
 }
 
 function gameloop() {
@@ -61,15 +64,11 @@ function gameloop() {
         restartGame();
         return;
     }
-    $('#alive').text("Alive: " + alivePlayers.length + " / " + numOfPlayers);
     alivePlayers.forEach(function (player) {
-        player.score++;
-        $('#score').text("Score: " + player.score);
         updatePlayer(player);
         checkIfDead(player);
     });
 }
-
 
 function restartGame() {
     $('.pipe').remove();
@@ -79,15 +78,54 @@ function restartGame() {
     clearInterval(loopPipeloop);
     loopGameloop = null;
     loopPipeloop = null;
-    generation++;
 
+    generation++;
+    regeneratePlayers();
     startGame();
+}
+
+function regeneratePlayers() {
+    const newPlayers = [];
+    for (let i = 0; i < numOfPlayers; i++) {
+        const parents = getNewPlayerParents();
+        const player = new Player();
+        player.neuralNet = NeuralNet.combine(parents[0].neuralNet, parents[1].neuralNet);
+        addPlayerView(player);
+        newPlayers.push(player);
+        playerJump(player);
+    }
+    players = newPlayers;
+}
+
+function getNewPlayerParents() {
+    const firstPlayerIndex = getNewPlayerParentIndex();
+    let secondPlayerIndex = getNewPlayerParentIndex();
+    while (firstPlayerIndex === secondPlayerIndex) {
+        secondPlayerIndex = getNewPlayerParentIndex();
+    }
+    return [players[firstPlayerIndex], players[secondPlayerIndex]];
+}
+
+function getNewPlayerParentIndex() {
+    let fitnessSum = 0;
+    for (let i = 0; i < players.length; i++) {
+        fitnessSum += 100 * players[i].score + players[i].distance;
+    }
+
+    let random = Math.random() * fitnessSum;
+    for (let i = 0; i < players.length; i++) {
+        random -= 100 * players[i].score + players[i].distance;
+        if (random <= 0) {
+            return i;
+        }
+    }
 }
 
 function updatePlayer(player) {
     player.velocity += gravity;
     player.position += player.velocity;
     player.rotation = Math.min((player.velocity / 10) * 90, 90);
+    player.distance += 1;
     player.view.css({rotate: player.rotation, top: player.position});
 }
 
@@ -111,13 +149,12 @@ function checkIfDead(player) {
 
     //have they tried to escape through the ceiling? :o
     var ceiling = $("#ceiling");
-    if (boxtop <= (ceiling.offset().top + ceiling.height()))
-        player.position = 0;
-
-
-    //we can't go any further without a pipe
-    if (pipes[0] == null)
+    if (boxtop <= (ceiling.offset().top + ceiling.height())) {
+        //player.position = 0;
+        playerDead(player);
         return;
+    }
+
 
     //determine the bounding box of the next pipes inner area
     var nextpipe = pipes[0];
@@ -130,8 +167,6 @@ function checkIfDead(player) {
 
     var distanceToPipe = pipetop + pipeheight / 2 - boxbottom - boxheight / 2;
     var distanceToCenter = piperight - boxleft;
-
-//    console.log("" + distanceToPipe + ", " + distanceToCenter);
 
     //have we gotten inside the pipe yet?
     if (boxright > pipeleft) {
@@ -154,29 +189,16 @@ function checkIfDead(player) {
         pipes.splice(0, 1);
 
         //and score a point
-        //playerScore(player);
+        player.score += 1;
+    }
+
+
+    const neuralOutput = player.neuralNet.output([distanceToPipe, distanceToCenter]);
+    //console.log(neuralOutput);
+    if (neuralOutput > 0.5) {
+        playerJump(player);
     }
 }
-
-$(document).keydown(function (e) {
-    switch (e.keyCode) {
-        case 81:
-            playerJump(players[0]);
-            break;
-        case 87:
-            playerJump(players[1]);
-            break;
-        case 69:
-            playerJump(players[2]);
-            break;
-        case 82:
-            playerJump(players[3]);
-            break;
-        case 84:
-            playerJump(players[4]);
-            break;
-    }
-});
 
 function playerJump(player) {
     player.velocity = jump;
@@ -185,10 +207,6 @@ function playerJump(player) {
 function playerDead(player) {
     player.isDead = true;
     player.view.remove();
-}
-
-function playerScore(player) {
-    player.score += 1;
 }
 
 function updatePipes() {

@@ -125,37 +125,37 @@
 
 @-webkit-keyframes animPipe {
     0% {
-        left: 900px;
+        left: 300px;
     }
     100% {
-        left: -100px;
+        left: -700px;
     }
 }
 
 @-moz-keyframes animPipe {
     0% {
-        left: 900px;
+        left: 300px;
     }
     100% {
-        left: -100px;
+        left: -700px;
     }
 }
 
 @-o-keyframes animPipe {
     0% {
-        left: 900px;
+        left: 300px;
     }
     100% {
-        left: -100px;
+        left: -700px;
     }
 }
 
 @keyframes animPipe {
     0% {
-        left: 900px;
+        left: 300px;
     }
     100% {
-        left: -100px;
+        left: -700px;
     }
 }
 
@@ -385,10 +385,11 @@ Screen - Game
     position: absolute;
     width: 34px;
     height: 24px;
+    background-image: url('../assets/birds/bird0.png');
 
     -webkit-animation: animBird 300ms steps(4) infinite;
     animation: animBird 300ms steps(4) infinite;
-    left: 60px;
+    left: 100px;
     top: 200px;
 }
 
