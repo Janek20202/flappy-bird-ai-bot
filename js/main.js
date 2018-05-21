@@ -64,6 +64,8 @@ function gameloop() {
         restartGame();
         return;
     }
+    $('#alive').text("Alive: " + alivePlayers.length + " / " + numOfPlayers);
+    $('#score').text("Score: " + alivePlayers[0].score);
     alivePlayers.forEach(function (player) {
         updatePlayer(player);
         checkIfDead(player);
