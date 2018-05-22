@@ -466,8 +466,8 @@ Screen - Game
     margin-right: 50px;
     opacity: 100;
     top: 90px;
-    width: 200px;
-    height: 50px;
+    width: 210px;
+    height: 60px;
     border: 5px inset gray;
 
     z-index: 1000;

@@ -13,6 +13,7 @@ class Player {
 let generation = 1;
 const numOfPlayers = 50;
 let players = [];
+let maxScore = 0;
 
 const gravity = 0.25;
 const jump = -4.6;
@@ -73,6 +74,15 @@ function gameloop() {
 }
 
 function restartGame() {
+    const newMaxScore = players.sort(function (player1, player2) {
+        return player2.score - player1.score;
+    })[0].score;
+
+    if (maxScore < newMaxScore) {
+        maxScore = newMaxScore;
+        $('#maxScore').text("Max Score: " + maxScore);
+    }
+
     $('.pipe').remove();
     pipes = [];
 
