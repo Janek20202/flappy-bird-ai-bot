@@ -66,7 +66,7 @@ function gameloop() {
         return;
     }
     $('#alive').text("Alive: " + alivePlayers.length + " / " + numOfPlayers);
-    $('#score').text("Score: " + alivePlayers[0].score);
+    $('#score').text("Distance: " + alivePlayers[0].distance);
     alivePlayers.forEach(function (player) {
         updatePlayer(player);
         checkIfDead(player);
@@ -74,13 +74,17 @@ function gameloop() {
 }
 
 function restartGame() {
-    const newMaxScore = players.sort(function (player1, player2) {
-        return player2.score - player1.score;
-    })[0].score;
 
+    let newMaxScore = 0;
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].distance > newMaxScore) {
+            newMaxScore = players[i].distance
+        }
+    }
+    console.log(generation + " : " + newMaxScore);
     if (maxScore < newMaxScore) {
         maxScore = newMaxScore;
-        $('#maxScore').text("Max Score: " + maxScore);
+        $('#maxScore').text("Max distance: " + maxScore);
     }
 
     $('.pipe').remove();
@@ -202,6 +206,7 @@ function checkIfDead(player) {
 
         //and score a point
         player.score += 1;
+
     }
 
 
