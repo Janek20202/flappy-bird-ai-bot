@@ -1,6 +1,5 @@
 class Player {
     constructor() {
-        this.score = 0;
         this.distance = 0;
         this.velocity = 0;
         this.position = 180;
@@ -125,12 +124,12 @@ function getNewPlayerParents() {
 function getNewPlayerParentIndex() {
     let fitnessSum = 0;
     for (let i = 0; i < players.length; i++) {
-        fitnessSum += 100 * players[i].score + players[i].distance;
+        fitnessSum += players[i].distance;
     }
 
     let random = Math.random() * fitnessSum;
     for (let i = 0; i < players.length; i++) {
-        random -= 100 * players[i].score + players[i].distance;
+        random -= players[i].distance;
         if (random <= 0) {
             return i;
         }
@@ -203,15 +202,10 @@ function checkIfDead(player) {
     if (boxleft > piperight) {
         //yes, remove it
         pipes.splice(0, 1);
-
-        //and score a point
-        player.score += 1;
-
     }
 
 
     const neuralOutput = player.neuralNet.output([distanceToPipe, distanceToCenter]);
-    //console.log(neuralOutput);
     if (neuralOutput > 0.5) {
         playerJump(player);
     }
