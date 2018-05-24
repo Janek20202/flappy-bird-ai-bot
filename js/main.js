@@ -19,7 +19,7 @@ const jump = -4.6;
 const flyArea = $("#flyarea").height();
 
 
-const pipeheight = 110;
+const pipeheight = 100;
 const pipewidth = 52;
 let pipes = [];
 
@@ -73,17 +73,17 @@ function gameloop() {
 }
 
 function restartGame() {
-
     let newMaxScore = 0;
+    let maxScoreGeneration = 0;
     for (let i = 0; i < players.length; i++) {
         if (players[i].distance > newMaxScore) {
-            newMaxScore = players[i].distance
+            newMaxScore = players[i].distance;
         }
     }
-    console.log(generation + " : " + newMaxScore);
     if (maxScore < newMaxScore) {
         maxScore = newMaxScore;
-        $('#maxScore').text("Max distance: " + maxScore);
+        maxScoreGeneration = generation;
+        $('#maxScore').text("Max distance: " + maxScore + " in generation " + maxScoreGeneration);
     }
 
     $('.pipe').remove();
@@ -124,12 +124,12 @@ function getNewPlayerParents() {
 function getNewPlayerParentIndex() {
     let fitnessSum = 0;
     for (let i = 0; i < players.length; i++) {
-        fitnessSum += players[i].distance;
+        fitnessSum += Math.pow(players[i].distance, 2);
     }
 
     let random = Math.random() * fitnessSum;
     for (let i = 0; i < players.length; i++) {
-        random -= players[i].distance;
+        random -= Math.pow(players[i].distance, 2);
         if (random <= 0) {
             return i;
         }
